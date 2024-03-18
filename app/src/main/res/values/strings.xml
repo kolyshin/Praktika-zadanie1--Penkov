@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ru.btpit.nmediaShishkin</string>
+    <string name="button">Button</string>
+    <string name="boom">При нажатии на кнопку выведу сообщение!!!</string>
+</resources>
