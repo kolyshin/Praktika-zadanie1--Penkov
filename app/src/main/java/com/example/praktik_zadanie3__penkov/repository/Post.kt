@@ -7,5 +7,6 @@ package com.example.praktik_zadanie3__penkov.repository
         val published: String,
         var likes: Int,
         var share: Int,
-        var likedByMe: Boolean
+        var likedByMe: Boolean,
+        val shareByMe: Boolean
     )
