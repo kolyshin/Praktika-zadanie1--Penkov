@@ -2,6 +2,7 @@ package com.example.praktik_zadanie3__penkov.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,12 +14,18 @@ import kotlin.math.pow
 typealias OnLikeListener = (post: Post) -> Unit
 typealias OnShareListener = (post: Post) -> Unit
 
+interface OnInteractionListener {
+    fun onLike(post: Post) {}
+    fun onShare(post: Post) {}
+    fun onEdit(post: Post) {}
+    fun onRemove(post: Post) {}
+}
 class PostsAdapter(
-    private val onLikeListener: OnLikeListener,
-    private val onShareListener: OnShareListener) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+    private val onInteractionListener: OnInteractionListener
+) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PostViewHolder(binding, onLikeListener, onShareListener)
+        return PostViewHolder(binding, onInteractionListener)
     }
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = getItem(position)
@@ -27,8 +34,7 @@ class PostsAdapter(
 }
 class PostViewHolder(
     private val binding: CardPostBinding,
-    private val onLikeListener: OnLikeListener,
-    private val onShareListener: OnShareListener
+    private val onInteractionListener: OnInteractionListener
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
@@ -40,8 +46,26 @@ class PostViewHolder(
             like.setImageResource(
                 if (post.likedByMe) R.drawable.ic_like_filled_24dp else R.drawable.ic_like_24dp
             )
+            tritochki.setOnClickListener {
+                PopupMenu(it.context, it).apply {
+                    inflate(R.menu.popup_menu)
+                    setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.remove -> {
+                                onInteractionListener.onRemove(post)
+                                true
+                            }
+                            R.id.edit -> {
+                                onInteractionListener.onEdit(post)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                }.show()
+            }
             like.setOnClickListener {
-                onLikeListener(post)
+                onInteractionListener.onLike(post)
             }
             textlike.text = post.likes.toString()
             when {
@@ -50,7 +74,7 @@ class PostViewHolder(
                 else -> textlike.text = String.format("%.1fM", post.likes.toDouble() / 1000000)
             }
             share.setOnClickListener {
-                onShareListener(post)
+                onInteractionListener.onShare(post)
             }
             textShare.text = post.share.toString()
             when {
@@ -62,12 +86,6 @@ class PostViewHolder(
             }
         }
     }
-}
-
-fun getFormatedNumber(count: Long): String {
-    if (count < 1000) return "" + count
-    val exp = (ln(count.toDouble()) / ln(1000.0)).toInt()
-    return String.format("%.1f %c", count / 1000.0.pow(exp.toDouble()), "KMGTPE"[exp - 1])
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
