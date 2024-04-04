@@ -14,6 +14,7 @@ import kotlin.math.pow
 typealias OnLikeListener = (post: Post) -> Unit
 typealias OnShareListener = (post: Post) -> Unit
 
+
 interface OnInteractionListener {
     fun onLike(post: Post) {}
     fun onShare(post: Post) {}
@@ -43,9 +44,10 @@ class PostViewHolder(
             osnovnoitext.text = post.content
             textlike.text = post.likes.toString()
             textShare.text = post.share.toString()
-            like.setImageResource(
-                if (post.likedByMe) R.drawable.ic_like_filled_24dp else R.drawable.ic_like_24dp
-            )
+            like.isChecked = post.likedByMe
+            textlike.text = getFormatedNumber(post.likes.toLong())
+            textShare.text = getFormatedNumber(post.share.toLong())
+
             tritochki.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.popup_menu)
@@ -87,7 +89,11 @@ class PostViewHolder(
         }
     }
 }
-
+fun getFormatedNumber(count: Long): String {
+    if (count < 1000) return "" + count
+    val exp = (ln(count.toDouble()) / ln(1000.0)).toInt()
+    return String.format("%.1f %c", count / 1000.0.pow(exp.toDouble()), "KMGTPE"[exp - 1])
+}
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
     override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
         return oldItem.id == newItem.id
