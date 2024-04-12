@@ -14,6 +14,10 @@
     <string name="delet">Удалить пост</string>
     <string name="edit">Изменить пост</string>
     <string name="error_empty_content">Пост не может добавиться, введите текст</string>
+    <string name="chooser_share_post">Поделиться постом</string>
+    <string name="description_post_save">Сохранить</string>
+    <string name="cancel">Отменить</string>
+    <string name="play">Включить</string>
 </resources>
 
 

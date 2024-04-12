@@ -13,4 +13,5 @@
     <item name="textShare" type="id" />
     <item name="textprosmotr" type="id" />
     <item name="prosmotr" type="id" />
+    <item name="fab" type="id" />
 </resources>

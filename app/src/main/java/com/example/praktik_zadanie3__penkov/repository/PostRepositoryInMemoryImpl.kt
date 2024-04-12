@@ -1,7 +1,6 @@
 package com.example.praktik_zadanie3__penkov.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.praktik_zadanie3__penkov.repository.Post
 
 class PostRepositoryInMemoryImpl : PostRepository{
     private var nextId=1
@@ -65,6 +64,12 @@ class PostRepositoryInMemoryImpl : PostRepository{
     override fun removeById(id: Int) {
         posts = posts.filter { it.id!=id }
         data.value = posts
+    }
+    override fun postID(id: Int): LiveData<Post> {
+        val postLiveData = MutableLiveData<Post>()
+        postLiveData.value = posts.find { it.id == id }
+
+        return postLiveData
     }
 
 
