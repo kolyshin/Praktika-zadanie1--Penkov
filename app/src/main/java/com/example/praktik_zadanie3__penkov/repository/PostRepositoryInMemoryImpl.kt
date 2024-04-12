@@ -1,7 +1,6 @@
 package com.example.praktik_zadanie3__penkov.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.praktik_zadanie3__penkov.repository.Post
 
 class PostRepositoryInMemoryImpl : PostRepository{
     private var nextId=1
@@ -14,7 +13,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
             likedByMe = false,
             likes = 699,
             share = 35,
-            shareByMe=false
+
         ),
         Post(
             id = nextId++,
@@ -24,7 +23,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
             likedByMe = false,
             likes = 999999,
             share = 999,
-            shareByMe=false
+
         )
     ).reversed()
     private val data = MutableLiveData(posts)
@@ -36,7 +35,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
                 author = "Я",
                 likedByMe = false,
                 published = "Сейчас",
-                shareByMe = false
+
             )
             ) + posts
             data.value = posts
@@ -57,7 +56,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
     override fun shareById(id: Int) {
         posts = posts.map {
             if (it.id != id) it else
-                it.copy(shareByMe = !it.shareByMe, share = it.share+1)
+                it.copy( share = it.share+1)
         }
         data.value = posts
     }
@@ -65,6 +64,12 @@ class PostRepositoryInMemoryImpl : PostRepository{
     override fun removeById(id: Int) {
         posts = posts.filter { it.id!=id }
         data.value = posts
+    }
+    override fun postID(id: Int): LiveData<Post> {
+        val postLiveData = MutableLiveData<Post>()
+        postLiveData.value = posts.find { it.id == id }
+
+        return postLiveData
     }
 
 
