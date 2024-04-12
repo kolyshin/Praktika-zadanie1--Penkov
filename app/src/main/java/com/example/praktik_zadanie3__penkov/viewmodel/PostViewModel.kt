@@ -1,10 +1,13 @@
 package com.example.praktik_zadanie3__penkov.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.praktik_zadanie3__penkov.repository.Post
 import com.example.praktik_zadanie3__penkov.repository.PostRepository
 import com.example.praktik_zadanie3__penkov.repository.PostRepositoryInMemoryImpl
+import com.example.praktik_zadanie3__penkov.repository.PostRepositorySharedPrefsImpl
 
 private val empty = Post(
     id = 0,
@@ -17,8 +20,8 @@ private val empty = Post(
     share = 0
 )
 
-class PostViewModel : ViewModel() {
-    private val repository: PostRepository = PostRepositoryInMemoryImpl()
+class PostViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: PostRepository =  PostRepositorySharedPrefsImpl(application)
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
     fun save() {
