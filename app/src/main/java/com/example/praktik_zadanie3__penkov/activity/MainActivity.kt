@@ -1,5 +1,7 @@
 package com.example.praktik_zadanie3__penkov.activity
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -15,6 +17,7 @@ import com.example.praktik_zadanie3__penkov.repository.Post
 import com.example.praktik_zadanie3__penkov.viewmodel.PostViewModel
 import com.google.ai.client.generativeai.type.content
 
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +25,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val viewModel: PostViewModel by viewModels()
         val adapter = PostsAdapter(object : OnInteractionListener {
+            override fun onVideo(post: Post) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=5mGdCO7kNF0"))
+                startActivity(intent)
+            }
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
             }
@@ -33,51 +40,47 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onShare(post: Post) {
                 viewModel.shareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                startActivity(shareIntent)
             }
         })
         binding.list.adapter=adapter
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
+        val newPostLauncher = registerForActivityResult(NewPostResultContract()) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContent(result)
+            viewModel.save()
+        }
         viewModel.edited.observe(this){ post->
             if(post.id == 0){
                 return@observe
             }
-            with(binding.content){
-                binding.group.visibility = View.VISIBLE
-                requestFocus()
-                setText(post.content)
-            }
+            newPostLauncher.launch(post.content)
         }
         binding.cancel.setOnClickListener {
-            with(binding.content){
-                viewModel.save()
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-                binding.group.visibility = View.GONE
-            }
-        }
-        binding.save.setOnClickListener {
-            with(binding.content) {
-                if (text.isNullOrBlank()) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        context.getString(R.string.error_empty_content),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
-                viewModel.changeContent(text.toString())
-                viewModel.save()
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-            }
+            newPostLauncher.launch(null)
 
         }
+        binding.fab.setOnClickListener {
+            newPostLauncher.launch(null)
+
+        }
+        binding.fab.setOnClickListener{
+            newPostLauncher.launch(null)
+        }
+
     }
+
 }
+
+
 
 
 
